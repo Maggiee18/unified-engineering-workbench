@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 430" font-family="Segoe UI, Arial, sans-serif" font-size="13">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#334155"/></marker></defs>
+  <rect width="900" height="430" fill="#fff"/>
+  <text x="20" y="28" font-size="16" font-weight="700">Host-connected embedded workbench (design; all devices simulated in software)</text>
+  <rect x="20" y="160" width="170" height="110" rx="8" fill="#e7effb" stroke="#1f5fbf" stroke-width="1.5"/>
+  <text x="105" y="190" text-anchor="middle" font-weight="700">Host PC</text>
+  <text x="105" y="210" text-anchor="middle">Windows 11 x64</text>
+  <text x="105" y="228" text-anchor="middle">Launch.exe (C++17)</text>
+  <text x="105" y="246" text-anchor="middle" fill="#475569">IDeviceAdapter HAL</text>
+  <rect x="250" y="160" width="140" height="110" rx="8" fill="#f1f5f9" stroke="#475569" stroke-width="1.5"/>
+  <text x="320" y="192" text-anchor="middle" font-weight="700">Powered USB hub</text>
+  <text x="320" y="212" text-anchor="middle">5 V / 3 A supply</text>
+  <text x="320" y="230" text-anchor="middle">common GND</text>
+  <line x1="190" y1="215" x2="250" y2="215" stroke="#334155" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="220" y="206" text-anchor="middle" font-size="11">USB 2.0</text>
+  <rect x="470" y="50" width="390" height="95" rx="8" fill="#fff" stroke="#1a7f37" stroke-width="1.5"/>
+  <text x="665" y="76" text-anchor="middle" font-weight="700">MCU board: ST NUCLEO-F446RE (assumed)</text>
+  <text x="665" y="96" text-anchor="middle">STM32F446RE Cortex-M4F · 3.3 V I/O</text>
+  <text x="665" y="114" text-anchor="middle">ST-LINK/V2-1: USB VCP UART 115200 8N1 + SWD</text>
+  <text x="665" y="132" text-anchor="middle" fill="#b42318">remove CN2 jumpers when external probe is used</text>
+  <rect x="470" y="168" width="390" height="95" rx="8" fill="#fff" stroke="#9a5b00" stroke-width="1.5"/>
+  <text x="665" y="194" text-anchor="middle" font-weight="700">FPGA board: Digilent Basys 3 (assumed)</text>
+  <text x="665" y="214" text-anchor="middle">Artix-7 XC7A35T · LVCMOS33 user I/O · 1.0 V core</text>
+  <text x="665" y="232" text-anchor="middle">FT2232HQ: ch.A JTAG (configuration), ch.B UART</text>
+  <text x="665" y="250" text-anchor="middle" fill="#475569">Pmod JA 3.3 V (optional SPI link to MCU)</text>
+  <rect x="470" y="300" width="390" height="95" rx="8" fill="#fff" stroke="#5b3fa8" stroke-width="1.5"/>
+  <text x="665" y="326" text-anchor="middle" font-weight="700">JTAG/SWD debug adapter (J-Link class, assumed)</text>
+  <text x="665" y="346" text-anchor="middle">debug interface only, not a compute target</text>
+  <text x="665" y="364" text-anchor="middle">I/O buffers referenced to target VTref (1.2-5 V)</text>
+  <text x="665" y="382" text-anchor="middle">drives TCK/TMS/TDI/nRESET · target drives TDO/SWO</text>
+  <line x1="390" y1="195" x2="470" y2="100" stroke="#334155" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="390" y1="215" x2="470" y2="215" stroke="#334155" stroke-width="1.5" marker-end="url(#a)"/>
+  <line x1="390" y1="235" x2="470" y2="345" stroke="#334155" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="428" y="140" font-size="11">USB</text><text x="428" y="208" font-size="11">USB</text><text x="428" y="300" font-size="11">USB</text>
+  <path d="M860,348 C895,348 895,98 860,98" fill="none" stroke="#5b3fa8" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#a)"/>
+  <text x="868" y="215" font-size="11" fill="#5b3fa8" transform="rotate(90 868 215)" text-anchor="middle">10-pin 1.27 mm Cortex Debug (SWD/JTAG), 3.3 V</text>
+  <path d="M665,145 L665,168" stroke="#9a5b00" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <text x="672" y="161" font-size="10" fill="#9a5b00">optional SPI, 3.3 V, + GND</text>
+</svg>

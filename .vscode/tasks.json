@@ -1,0 +1,31 @@
+{
+  // One-action run of the PACKAGED application (no build, no extension needed).
+  // VS Code / Antigravity: Terminal > Run Task... > "Run Workbench (Launch.exe)"
+  // or Ctrl+Shift+B (it is the default build task).
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Workbench (Launch.exe)",
+      "type": "process",
+      "command": "${workspaceFolder}/Launch.exe",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": { "kind": "build", "isDefault": true },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "Run unit tests (packaged)",
+      "type": "process",
+      "command": "${workspaceFolder}/bin/workbench_tests.exe",
+      "options": { "cwd": "${workspaceFolder}/bin" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build from source (CMake, optional)",
+      "type": "shell",
+      "command": "cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release && cmake --build build && ctest --test-dir build --output-on-failure",
+      "problemMatcher": ["$gcc"]
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "allAgreementPassed": true,
+  "config": {
+    "cases": 2000,
+    "elements": 2000,
+    "kRange": [
+      1.0,
+      400.0
+    ],
+    "qRange": [
+      1000.0,
+      100000.0
+    ],
+    "repetitions": 5,
+    "seed": 20262027,
+    "tolerance": 1e-08,
+    "warmups": 1
+  },
+  "logicalCpus": 2,
+  "note": "",
+  "serialMedianSeconds": 0.176346008,
+  "serialRunSeconds": [
+    0.402467396,
+    0.176346008,
+    0.175773259,
+    0.17735461,
+    0.175693717
+  ],
+  "system": {
+    "buildType": "Release",
+    "compiler": "GCC 13.3.0",
+    "cpuModel": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "logicalCpus": 2,
+    "operatingSystem": "Linux 6.18.44-fc-v185",
+    "optimisationFlags": "-O3 -DNDEBUG",
+    "physicalCores": 2,
+    "totalRamBytes": 8417533952
+  },
+  "timings": [
+    {
+      "agreementPassed": true,
+      "efficiency": 1.0,
+      "maxAbsDiffVsSerial": 0.0,
+      "medianSeconds": 0.199242857,
+      "runSeconds": [
+        0.351774563,
+        0.182085896,
+        0.199242857,
+        0.231177094,
+        0.184853021
+      ],
+      "skipReason": "",
+      "skipped": false,
+      "speedup": 1.0,
+      "speedupVsSerial": 0.8850807032946733,
+      "workers": 1
+    },
+    {
+      "agreementPassed": true,
+      "efficiency": 0.9809378070125393,
+      "maxAbsDiffVsSerial": 0.0,
+      "medianSeconds": 0.101557334,
+      "runSeconds": [
+        0.121705761,
+        0.108560137,
+        0.098960463,
+        0.101557334,
+        0.099014688
+      ],
+      "skipReason": "",
+      "skipped": false,
+      "speedup": 1.9618756140250786,
+      "speedupVsSerial": 1.7364182482379855,
+      "workers": 2
+    },
+    {
+      "agreementPassed": false,
+      "efficiency": 0.0,
+      "maxAbsDiffVsSerial": 0.0,
+      "medianSeconds": 0.0,
+      "runSeconds": [],
+      "skipReason": "exceeds the 2 logical CPU(s) available",
+      "skipped": true,
+      "speedup": 0.0,
+      "speedupVsSerial": 0.0,
+      "workers": 3
+    },
+    {
+      "agreementPassed": false,
+      "efficiency": 0.0,
+      "maxAbsDiffVsSerial": 0.0,
+      "medianSeconds": 0.0,
+      "runSeconds": [],
+      "skipReason": "exceeds the 2 logical CPU(s) available",
+      "skipped": true,
+      "speedup": 0.0,
+      "speedupVsSerial": 0.0,
+      "workers": 4
+    }
+  ]
+}

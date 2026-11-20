@@ -1,0 +1,130 @@
+{
+  "url": "http://127.0.0.1:9300/",
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+    "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+    "Failed to load resource: the server responded with a status of 422 (Unprocessable Content)",
+    "Failed to load resource: the server responded with a status of 504 (Gateway Timeout)"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "time": "2026-11-01T18:36:56.430Z",
+      "file": "01_launch.png",
+      "note": "Application opened; backend online indicator and launch-to-ready times",
+      "status": "Backprop: J0=1.18254, gradient check PASS, J after 100 steps = 1.703e-20"
+    },
+    {
+      "step": 2,
+      "time": "2026-11-01T18:36:57.899Z",
+      "file": "02_stl_example.png",
+      "note": "Example ASCII STL parsed in C++ and rendered (fit-to-view)",
+      "status": "STL loaded: heatsink_bracket.stl - 224 triangles in 1.08 ms"
+    },
+    {
+      "step": 3,
+      "time": "2026-11-01T18:37:01.478Z",
+      "file": "03_stl_rotate_zoom.png",
+      "note": "Rotated (left-drag) and zoomed (wheel) with wireframe overlay",
+      "status": "STL loaded: heatsink_bracket.stl - 224 triangles in 1.08 ms"
+    },
+    {
+      "step": 4,
+      "time": "2026-11-01T18:37:03.475Z",
+      "file": "04_stl_malformed.png",
+      "note": "Malformed STL (NaN vertex) rejected with line number; previous model kept",
+      "status": "STL rejected: line 4: vertex component 'nan' is not finite (NaN/Inf are rejected)"
+    },
+    {
+      "step": 5,
+      "time": "2026-11-01T18:37:04.375Z",
+      "file": "05_stl_empty.png",
+      "note": "Empty STL file explained",
+      "status": "STL rejected: the STL file is empty (0 bytes)"
+    },
+    {
+      "step": 6,
+      "time": "2026-11-01T18:37:06.509Z",
+      "file": "06_csv_point_cloud.png",
+      "note": "Synthetic nodal-temperature CSV as coloured point cloud with °C legend and node inspection",
+      "status": "Node 2113: 38.866 °C"
+    },
+    {
+      "step": 7,
+      "time": "2026-11-01T18:37:07.025Z",
+      "file": "07_csv_missing_column.png",
+      "note": "CSV with missing z_m column rejected with actionable message",
+      "status": "CSV rejected: line 1: header is missing required column(s): z_m (expected node_id,x_m,y_m,z_m,temperature_C)"
+    },
+    {
+      "step": 8,
+      "time": "2026-11-01T18:37:07.743Z",
+      "file": "08_thermal_convergence.png",
+      "note": "FEA for N = 10, 20, 40, 80 vs exact solution; midpoint errors and log-log convergence",
+      "status": "CSV rejected: line 1: header is missing required column(s): z_m (expected node_id,x_m,y_m,z_m,temperature_C)"
+    },
+    {
+      "step": 9,
+      "time": "2026-11-01T18:37:07.873Z",
+      "file": "09_thermal_validation.png",
+      "note": "Invalid conductivity flagged before any solve",
+      "status": "Some parameters are invalid - fix the highlighted fields (hover for details)."
+    },
+    {
+      "step": 10,
+      "time": "2026-11-01T18:37:08.803Z",
+      "file": "10_performance_running.png",
+      "note": "Benchmark running in a C++ background job; UI stays responsive with progress",
+      "status": "Benchmark started (job-1): 400 cases × 2000 elements, workers 1,2"
+    },
+    {
+      "step": 11,
+      "time": "2026-11-01T18:37:09.505Z",
+      "file": "11_performance_results.png",
+      "note": "Serial vs thread-pool medians, speedup, efficiency and 1e-8 °C agreement check",
+      "status": "Benchmark finished in 0.705 s; agreement PASS"
+    },
+    {
+      "step": 12,
+      "time": "2026-11-01T18:37:10.364Z",
+      "file": "12_performance_cancelled.png",
+      "note": "Cancellation: job stopped safely, earlier results untouched",
+      "status": "Benchmark cancelled safely"
+    },
+    {
+      "step": 13,
+      "time": "2026-11-01T18:37:11.049Z",
+      "file": "13_hardware_connected.png",
+      "note": "All three simulated devices discovered, connected, telemetry received",
+      "status": "jtag0: telemetry #1 (vtref=3.2931 V, tck_frequency=4000 kHz, target_idcode=0x4BA00477, scan_chain_devices=1)"
+    },
+    {
+      "step": 14,
+      "time": "2026-11-01T18:37:11.759Z",
+      "file": "14_hardware_timeout.png",
+      "note": "Injected telemetry timeout: FPGA faulted with recoverable error",
+      "status": "fpga0: telemetry failed - fpga0: telemetry request timed out after 250 ms (simulated fault) (recoverable: use Recover)"
+    },
+    {
+      "step": 15,
+      "time": "2026-11-01T18:37:12.397Z",
+      "file": "15_hardware_recovered.png",
+      "note": "Recovery reconnects the device and telemetry resumes",
+      "status": "fpga0: telemetry #1 (xadc_temperature=41.134 C, vccint=0.99429 V, vccaux=1.8037 V, mmcm_locked=true, design_id=0x00C0FFEE)"
+    },
+    {
+      "step": 16,
+      "time": "2026-11-01T18:37:12.843Z",
+      "file": "16_backprop.png",
+      "note": "Hand-coded gradients vs central differences (ε = 1e-6), one update, loss over 100 steps",
+      "status": "fpga0: telemetry #1 (xadc_temperature=41.134 C, vccint=0.99429 V, vccaux=1.8037 V, mmcm_locked=true, design_id=0x00C0FFEE)"
+    },
+    {
+      "step": 17,
+      "time": "2026-11-01T18:37:13.176Z",
+      "file": "17_log.png",
+      "note": "Application log panel",
+      "status": "fpga0: telemetry #1 (xadc_temperature=41.134 C, vccint=0.99429 V, vccaux=1.8037 V, mmcm_locked=true, design_id=0x00C0FFEE)"
+    }
+  ]
+}

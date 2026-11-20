@@ -1,0 +1,348 @@
+commit c786d69f407ebb289df1ef68226850d5f6140d30
+Author: Candidate
+Date:   2026-11-01 19:02:35 +0000
+
+    Exclusive port binding and working port fallback
+    
+    A second Launch.exe on the target PC bound the same port as the first because
+    httplib's default socket options set SO_REUSEADDR (Windows) / SO_REUSEPORT (Linux).
+    Also, a failed bind left the server decommissioned, so the next port was never tried.
+    Re-tested: two instances get 8765 and 8766.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_01GN4yLFDveUZapAsodnVT96
+
+ AI_USE_LOG.md               |  9 +++++++--
+ docs/methodology/TESTING.md |  5 +++++
+ src/server/http_server.cpp  | 15 +++++++++++++++
+ 3 files changed, 27 insertions(+), 2 deletions(-)
+
+commit c696e99fd0c280f0f2dd5f7e8da2062c6de16036
+Author: Candidate
+Date:   2026-11-01 18:57:35 +0000
+
+    Open a fresh Edge app window per launch (unique query string)
+    
+    Found on the target PC: launching twice made Edge re-focus the existing app window
+    for the identical URL, so the new run's UI-ready event never fired.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_01GN4yLFDveUZapAsodnVT96
+
+ src/app/main.cpp | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+commit e61319691ff915800614e1039d93d2d0497eee38
+Author: Candidate
+Date:   2026-11-01 18:53:30 +0000
+
+    Write launch/ready times and browser outcome to logs/launch.log next to Launch.exe
+    
+    Needed to verify the final package on the target PC without seeing the console:
+    the app window from an earlier test instance was in front of the new one.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_01GN4yLFDveUZapAsodnVT96
+
+ docs/architecture/ARCHITECTURE.md |  2 +-
+ src/app/main.cpp                  | 11 ++++++++++-
+ src/server/http_server.cpp        | 18 ++++++++++++++++++
+ src/server/http_server.hpp        |  4 ++++
+ 4 files changed, 33 insertions(+), 2 deletions(-)
+
+commit 8006ae8421570213d4cc41fd50c682ef010050a6
+Author: Candidate
+Date:   2026-11-01 18:37:54 +0000
+
+    AI log: correct session time window
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_01GN4yLFDveUZapAsodnVT96
+
+ AI_USE_LOG.md | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+commit da81faffb61d409e7015aba88c5509d57379eb8e
+Author: Candidate
+Date:   2026-11-01 18:37:38 +0000
+
+    Walkthrough against the final Windows exe, development log
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_01GN4yLFDveUZapAsodnVT96
+
+ docs/DEVELOPMENT_LOG.md                       |  19 ++++
+ docs/walkthrough/01_launch.png                | Bin 0 -> 112675 bytes
+ docs/walkthrough/02_stl_example.png           | Bin 0 -> 167310 bytes
+ docs/walkthrough/03_stl_rotate_zoom.png       | Bin 0 -> 234133 bytes
+ docs/walkthrough/04_stl_malformed.png         | Bin 0 -> 185729 bytes
+ docs/walkthrough/05_stl_empty.png             | Bin 0 -> 183360 bytes
+ docs/walkthrough/06_csv_point_cloud.png       | Bin 0 -> 258192 bytes
+ docs/walkthrough/07_csv_missing_column.png    | Bin 0 -> 259848 bytes
+ docs/walkthrough/08_thermal_convergence.png   | Bin 0 -> 237979 bytes
+ docs/walkthrough/09_thermal_validation.png    | Bin 0 -> 244664 bytes
+ docs/walkthrough/10_performance_running.png   | Bin 0 -> 180941 bytes
+ docs/walkthrough/11_performance_results.png   | Bin 0 -> 260413 bytes
+ docs/walkthrough/12_performance_cancelled.png | Bin 0 -> 263277 bytes
+ docs/walkthrough/13_hardware_connected.png    | Bin 0 -> 339980 bytes
+ docs/walkthrough/14_hardware_timeout.png      | Bin 0 -> 349924 bytes
+ docs/walkthrough/15_hardware_recovered.png    | Bin 0 -> 357873 bytes
+ docs/walkthrough/16_backprop.png              | Bin 0 -> 209666 bytes
+ docs/walkthrough/17_log.png                   | Bin 0 -> 320284 bytes
+ docs/walkthrough/WALKTHROUGH.md               |  28 ++++++
+ docs/walkthrough/backend_log.txt              |  37 ++++++++
+ docs/walkthrough/steps.json                   | 130 ++++++++++++++++++++++++++
+ docs/walkthrough/ui_log.txt                   |  27 ++++++
+ 22 files changed, 241 insertions(+)
+
+commit ea5eea6d4e725f806ee3f992c1bbee9ca0387a00
+Author: Candidate
+Date:   2026-11-01 18:36:05 +0000
+
+    Engineering report (5 pages), block diagram PNG, Windows launch screenshot
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_01GN4yLFDveUZapAsodnVT96
+
+ docs/hardware/block_diagram.png                    | Bin 0 -> 226495 bytes
+ docs/report/Engineering_Report.pdf                 | Bin 0 -> 660229 bytes
+ docs/report/report.html                            | 116 +++++++++++++++++++++
+ .../01_launch_exe_double_click_2026-11-01_2334.jpg | Bin 0 -> 97032 bytes
+ 4 files changed, 116 insertions(+)
+
+commit 25f5249208ed27873ca371c63a38d8349e83a26d
+Author: Candidate
+Date:   2026-11-01 18:34:03 +0000
+
+    Documentation: README, architecture and traceability matrix, testing, AI use log, ownership, dependency lock
+    
+    Also removes machine-specific absolute paths from binaries (-ffile-prefix-map, no
+    baked-in test data path) and adds the printable backprop reference sheet (values
+    re-checked independently; two post-update numbers corrected before rendering).
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_01GN4yLFDveUZapAsodnVT96
+
+ AI_USE_LOG.md                                      | 138 +++++++++++++++++++++
+ CMakeLists.txt                                     |   7 +-
+ OWNERSHIP.md                                       |  38 ++++++
+ README.md                                          | 135 ++++++++++++++++++++
+ dependencies/VERSIONS.md                           |  26 ++++
+ docs/architecture/ARCHITECTURE.md                  | 100 +++++++++++++++
+ docs/methodology/TESTING.md                        |  72 +++++++++++
+ docs/methodology/backprop_derivation_sheet.html    |  52 ++++++++
+ docs/methodology/backprop_derivation_sheet.pdf     | Bin 0 -> 87102 bytes
+ .../test_logs/linux_gcc13_ctest_and_doctest.txt    |  10 ++
+ results/test_logs/windows_binary_under_wine.txt    |   5 +
+ 11 files changed, 582 insertions(+), 1 deletion(-)
+
+commit d694fdde6191bf634e71d171fc41013592ffd56e
+Author: Candidate
+Date:   2026-11-01 18:29:13 +0000
+
+    Native Windows 11 evidence: packaged tests 62/62 and 1-4 worker benchmark on i5-14450HX
+    
+    Preview ZIP extracted on the target laptop; Launch.exe double-clicked from Explorer
+    (Edge app window, backend ready 388 ms, UI ready 705 ms), bin\RunTests.cmd and
+    bin\RunBenchmark.cmd run natively. Adds hardware design, FEA, performance and data
+    provenance documentation.
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_01GN4yLFDveUZapAsodnVT96
+
+ docs/hardware/EMBEDDED_DESIGN.md                   | 145 +++++++++++++++++++++
+ docs/hardware/block_diagram.svg                    |  39 ++++++
+ docs/methodology/DATA_PROVENANCE.md                |  79 +++++++++++
+ docs/methodology/PERFORMANCE.md                    | 125 ++++++++++++++++++
+ docs/methodology/THERMAL_FEA.md                    | 140 ++++++++++++++++++++
+ .../benchmark_cases2000_N2000.json                 | 113 ++++++++++++++++
+ .../benchmark_runs_cases2000_N2000.csv             |  26 ++++
+ .../benchmark_summary_cases2000_N2000.csv          |   9 ++
+ .../windows11_i5-14450HX/console_log.txt           |   8 ++
+ ...chmark_windows11_i5-14450HX_cases2000_N2000.png | Bin 0 -> 73595 bytes
+ .../windows11_native_RunTests_2026-11-01.txt       |   8 ++
+ 11 files changed, 692 insertions(+)
+
+commit 2946e9807378f1a6cf1db3ee5cca2fbe8b2d16ca
+Author: Candidate
+Date:   2026-11-01 18:11:50 +0000
+
+    Fix 8 KiB upload cap for non text/plain clients; JSON 413 message; size-limit evidence
+    
+    Found while measuring import limits with curl: httplib rejects form-urlencoded
+    bodies above 8 KiB, so a 13 MB STL posted by curl returned an empty 413. The UI
+    sends text/plain and was unaffected. Also: Edge opens maximised, layout keeps two
+    columns down to 900 px wide (the first Windows launch showed the narrow layout).
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_01GN4yLFDveUZapAsodnVT96
+
+ results/csv/file_size_limit_tests.csv | 10 ++++++++++
+ src/server/browser_launcher.cpp       |  2 +-
+ src/server/http_server.cpp            | 12 ++++++++++++
+ src/ui/styles.css                     | 11 ++++++++---
+ tools/package_windows.sh              |  1 +
+ 5 files changed, 32 insertions(+), 4 deletions(-)
+
+commit 011ffb225508a0910416526992ac0266f2e74dea
+Author: Candidate
+Date:   2026-11-01 18:02:49 +0000
+
+    Results generation, plots, editor run configuration and Windows packaging
+    
+    - workbench_cli writes FEA/backprop CSVs and labelled benchmark outputs per machine
+    - tools/make_plots.py renders report plots from the C++-generated CSVs only
+    - .vscode tasks/launch run the packaged Launch.exe (no extension required)
+    - MinGW-w64 toolchain file and package_windows.sh (static exe, system DLLs only)
+    - Tests locate data/ relative to the working directory instead of a baked-in path
+    - Cloud benchmark: 2000 cases x 2000 elements on 2 vCPU Xeon
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_01GN4yLFDveUZapAsodnVT96
+
+ .vscode/launch.json                                |  15 +++
+ .vscode/tasks.json                                 |  31 +++++
+ config/editor/README.md                            |  21 ++++
+ config/editor/launch.json                          |  15 +++
+ config/editor/tasks.json                           |  31 +++++
+ .../benchmark_cases2000_N2000.json                 | 101 ++++++++++++++++
+ .../benchmark_runs_cases2000_N2000.csv             |  16 +++
+ .../benchmark_summary_cases2000_N2000.csv          |   9 ++
+ results/plots/backprop_loss.png                    | Bin 0 -> 50161 bytes
+ ...mark_cloud_linux_xeon_2vcpu_cases2000_N2000.png | Bin 0 -> 68640 bytes
+ results/plots/fea_mesh_convergence.png             | Bin 0 -> 57156 bytes
+ results/plots/fea_midpoint_error.png               | Bin 0 -> 37554 bytes
+ results/plots/fea_temperature_distribution.png     | Bin 0 -> 68953 bytes
+ src/app/cli_main.cpp                               |  16 +--
+ tests/test_data_dir.hpp                            |  21 ++++
+ tests/test_nodal_csv.cpp                           |   4 +-
+ tests/test_stl_parser.cpp                          |   4 +-
+ tools/make_plots.py                                | 132 +++++++++++++++++++++
+ tools/mingw-w64-x86_64.cmake                       |  11 ++
+ tools/package_windows.sh                           |  34 ++++++
+ tools/windows/RunBenchmark.cmd                     |  11 ++
+ tools/windows/RunTests.cmd                         |   8 ++
+ 22 files changed, 470 insertions(+), 10 deletions(-)
+
+commit 7f381cd065cff31eed4f86bdef949aee84b2dbad
+Author: Candidate
+Date:   2026-11-01 17:50:40 +0000
+
+    HTTP transport, job manager and embedded web UI with four engineering views
+    
+    - cpp-httplib server bound to 127.0.0.1 with structured JSON errors (400/409/422/504)
+    - Background job manager: benchmark progress, cooperative cancel, no partial results
+    - Web UI (three.js + Chart.js, vendored) embedded in the executable at build time
+    - Geometry (STL + nodal CSV point cloud, legend, node picking), Thermal, Performance,
+      Hardware (simulated devices, fault injection, recovery) and Backprop views
+    - Playwright walkthrough script exercising every view
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_01GN4yLFDveUZapAsodnVT96
+
+ CMakeLists.txt                  |   1 +
+ src/app/app.rc                  |  25 +++
+ src/app/main.cpp                | 111 ++++++++++++
+ src/server/browser_launcher.cpp |  46 +++++
+ src/server/browser_launcher.hpp |  13 ++
+ src/server/embedded_assets.hpp  |  18 ++
+ src/server/http_server.cpp      | 384 ++++++++++++++++++++++++++++++++++++++++
+ src/server/http_server.hpp      |  57 ++++++
+ src/server/job_manager.cpp      | 118 ++++++++++++
+ src/server/job_manager.hpp      |  63 +++++++
+ src/thermal/rod_fea.cpp         |   6 +-
+ src/ui/index.html               | 280 +++++++++++++++++++++++++++++
+ src/ui/js/app.js                |  82 +++++++++
+ src/ui/js/backprop.js           |  59 ++++++
+ src/ui/js/common.js             | 159 +++++++++++++++++
+ src/ui/js/geometry.js           | 273 ++++++++++++++++++++++++++++
+ src/ui/js/hardware.js           | 141 +++++++++++++++
+ src/ui/js/performance.js        | 155 ++++++++++++++++
+ src/ui/js/thermal.js            | 144 +++++++++++++++
+ src/ui/styles.css               | 166 +++++++++++++++++
+ tools/embed_assets.cmake        |  24 +++
+ tools/ui_walkthrough.mjs        | 133 ++++++++++++++
+ 22 files changed, 2456 insertions(+), 2 deletions(-)
+
+commit 86e1703584143af7297ffb8cd8b587a3580a62d3
+Author: Candidate
+Date:   2026-11-01 17:39:18 +0000
+
+    Core C++17 library: parsers, 1D thermal FEA, thread pool, batch benchmark, mocks, backprop
+    
+    - ASCII STL parser (state machine, line-numbered errors, binary/NaN/empty rejection)
+    - Nodal temperature CSV parser (header validation, duplicate ids, absolute-zero check)
+    - Two-node linear FEA with tridiagonal assembly, symmetric Dirichlet elimination, reactions
+    - Bounded std::thread pool, reproducible mt19937_64 batch generator, serial/parallel runners
+    - Mock MCU/FPGA/JTAG adapters with simulated timeout and recovery
+    - Hand-derived backprop with central-difference check
+    - doctest suite (62 cases) and workbench_cli result generator; example data generated by CLI
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+    Claude-Session: https://claude.ai/code/session_01GN4yLFDveUZapAsodnVT96
+
+ .gitignore                                    |    12 +
+ CMakeLists.txt                                |   120 +
+ data/geometry/heatsink_bracket.stl            |  1570 ++
+ data/thermal/synthetic_nodal_temperatures.csv |  2587 +++
+ dependencies/LICENSE.chartjs.md               |     9 +
+ dependencies/LICENSE.cpp-httplib.txt          |    22 +
+ dependencies/LICENSE.doctest.txt              |    21 +
+ dependencies/LICENSE.nlohmann-json.txt        |    21 +
+ dependencies/LICENSE.three.txt                |    21 +
+ dependencies/doctest.h                        |  7106 +++++++
+ dependencies/httplib.h                        | 10255 ++++++++++
+ dependencies/json.hpp                         | 24765 ++++++++++++++++++++++++
+ include/workbench/core/errors.hpp             |    46 +
+ include/workbench/core/linear_algebra.hpp     |    61 +
+ include/workbench/geometry/stl_mesh.hpp       |    63 +
+ include/workbench/hardware/device.hpp         |   114 +
+ include/workbench/ml/backprop.hpp             |    78 +
+ include/workbench/performance/batch.hpp       |   100 +
+ include/workbench/performance/system_info.hpp |    23 +
+ include/workbench/performance/thread_pool.hpp |    57 +
+ include/workbench/thermal/nodal_csv.hpp       |    50 +
+ include/workbench/thermal/rod_fea.hpp         |   120 +
+ include/workbench/utilities/text.hpp          |    53 +
+ results/csv/backprop_forward_backward.csv     |    10 +
+ results/csv/backprop_gradient_check.csv       |     6 +
+ results/csv/backprop_loss_history.csv         |   102 +
+ results/csv/fea_convergence.csv               |     6 +
+ results/csv/fea_exact_curve.csv               |  1002 +
+ results/csv/fea_midpoints_N10.csv             |    12 +
+ results/csv/fea_midpoints_N20.csv             |    22 +
+ results/csv/fea_midpoints_N40.csv             |    42 +
+ results/csv/fea_midpoints_N80.csv             |    82 +
+ results/csv/fea_nodal_N10.csv                 |    13 +
+ results/csv/fea_nodal_N20.csv                 |    23 +
+ results/csv/fea_nodal_N40.csv                 |    43 +
+ results/csv/fea_nodal_N80.csv                 |    83 +
+ src/app/cli_main.cpp                          |   264 +
+ src/core/linear_algebra.cpp                   |   120 +
+ src/geometry/stl_parser.cpp                   |   235 +
+ src/hardware/device_manager.cpp               |    90 +
+ src/hardware/mock_devices.cpp                 |   207 +
+ src/ml/backprop.cpp                           |    80 +
+ src/performance/batch.cpp                     |   230 +
+ src/performance/system_info.cpp               |   149 +
+ src/performance/thread_pool.cpp               |    41 +
+ src/server/json_mapping.cpp                   |   241 +
+ src/server/json_mapping.hpp                   |    48 +
+ src/thermal/nodal_csv.cpp                     |   179 +
+ src/thermal/rod_fea.cpp                       |   129 +
+ src/ui/vendor/OrbitControls.js                |  1523 ++
+ src/ui/vendor/chart.umd.js                    |    14 +
+ src/ui/vendor/three.module.min.js             |     6 +
+ src/utilities/csv_export.cpp                  |   116 +
+ src/utilities/csv_export.hpp                  |    29 +
+ src/utilities/text.cpp                        |   106 +
+ tests/test_backprop.cpp                       |    68 +
+ tests/test_hardware.cpp                       |    88 +
+ tests/test_json_mapping.cpp                   |    37 +
+ tests/test_main.cpp                           |     3 +
+ tests/test_nodal_csv.cpp                      |    87 +
+ tests/test_performance.cpp                    |   153 +
+ tests/test_stl_parser.cpp                     |   117 +
+ tests/test_text_utils.cpp                     |    45 +
+ tests/test_thermal_fea.cpp                    |   146 +
+ 64 files changed, 53271 insertions(+)

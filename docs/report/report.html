@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Unified Engineering Workbench: engineering report</title>
+<style>
+@page { size: A4; margin: 13mm 14mm 14mm; }
+body { font: 9.6pt/1.42 "Segoe UI", "Helvetica Neue", Arial, sans-serif; color: #15202b; }
+h1 { font-size: 17pt; margin: 0; } .sub { color: #4a5868; margin: 2px 0 8px; font-size: 9.5pt; }
+h2 { font-size: 11.5pt; margin: 11px 0 4px; padding-bottom: 2px; border-bottom: 1.5px solid #1f5fbf; color: #12305e; }
+h3 { font-size: 10pt; margin: 7px 0 2px; }
+p { margin: 3px 0 5px; } ul { margin: 2px 0 5px; padding-left: 16px; } li { margin: 1px 0; }
+table { border-collapse: collapse; width: 100%; margin: 4px 0 6px; font-size: 8.8pt; }
+th, td { border: 1px solid #c4ccd6; padding: 2px 5px; text-align: left; vertical-align: top; }
+th { background: #eef2f7; }
+.m { font-family: Consolas, "Courier New", monospace; font-size: 8.6pt; }
+.fig { text-align: center; margin: 4px 0 6px; } .fig img { max-width: 100%; }
+.cap { font-size: 8.4pt; color: #4a5868; text-align: center; margin-top: 1px; }
+.row { display: flex; gap: 8px; break-inside: avoid; } table, .box, .fig { break-inside: avoid; } h2 { break-after: avoid; } .row > div { flex: 1; }
+.box { background: #f4f7fb; border: 1px solid #d5dde8; padding: 5px 8px; border-radius: 4px; margin: 5px 0; }
+.pb { page-break-before: always; }
+</style></head><body>
+
+<h1>Unified Engineering Workbench</h1>
+<div class="sub">Engineering report · PASS Science Works R&amp;D Internship 2026–2027 common assignment · November 2026<br>
+C++17 backend · Windows 11 x64 one-click package · AI assistance disclosed in <span class="m">AI_USE_LOG.md</span></div>
+
+<h2>1. Overview and outcome</h2>
+<p>The workbench imports ASCII STL geometry and nodal temperature CSV data, solves a 1D steady thermal FEA problem and its mesh convergence, runs a batch of independent solves on a bounded thread pool, models a host-connected MCU/FPGA/JTAG bench with simulated adapters, and checks a hand-derived backpropagation. All parsing, numerics, concurrency, device logic and file processing are C++17; the browser-based UI only renders.</p>
+<table><tr><th>Gate / headline</th><th>Evidence</th></tr>
+<tr><td>Standalone launch</td><td>Extracted ZIP on the target laptop (Windows 11 build 26300, i5-14450HX), <b>Launch.exe double-clicked in Explorer</b>: UI opened, backend ready 388 ms, UI ready 705 ms after process creation. Only Windows system DLLs are imported.</td></tr>
+<tr><td>C++ backend and tests</td><td>62 test cases / 1276 assertions pass on Linux GCC 13, on the Windows binary under Wine, and <b>natively on the target laptop</b>.</td></tr>
+<tr><td>Thermal FEA</td><td>Max midpoint error 1.25, 0.3125, 0.078125, 0.01953 °C for N = 10, 20, 40, 80; observed order 2.000; equals q h²/8k exactly.</td></tr>
+<tr><td>Multicore</td><td>Speedup 2.04 / 2.72 / 3.63 at p = 2 / 3 / 4 on the target laptop; serial/parallel max |ΔT| = 0 °C (limit 1e-8).</td></tr>
+<tr><td>Backprop</td><td>Analytic vs central-difference gradients differ by ≤ 1.1e-10 (limit 1e-5); loss 1.18 → 1.7e-20 in 100 steps.</td></tr></table>
+
+<h2>2. Architecture and design choices</h2>
+<div class="row"><div>
+<p><b>Layers.</b> <span class="m">workbench_core</span> is a static library with no UI, HTTP or JSON dependency (geometry, thermal, performance, hardware, ml, core). It is linked into three executables: <span class="m">Launch.exe</span> (application), <span class="m">workbench_cli</span> (headless generator of every CSV in <span class="m">results/</span>) and <span class="m">workbench_tests</span>. A thin transport layer (cpp-httplib bound to 127.0.0.1, nlohmann/json mapping, a job manager) exposes the core; the web UI (three.js, Chart.js) is compiled into the exe.</p>
+<p><b>Why a web UI instead of Qt 6.</b> The brief treats web and desktop equally. Qt 6 could not be cross-built and deployed for Windows reliably from the Linux build environment, and the launch gate is pass/fail. A static MinGW-w64 exe with an embedded UI shown in an Edge <span class="m">--app</span> window (Edge ships with Windows 11) has no runtime to install, works offline and was verified on the target PC.</p>
+</div><div>
+<table><tr><th>Concern</th><th>Decision</th></tr>
+<tr><td>Data paths</td><td>resolved from the exe location, not the working directory</td></tr>
+<tr><td>Parsing numbers</td><td><span class="m">std::from_chars</span>: locale independent; NaN/Inf rejected</td></tr>
+<tr><td>Long work</td><td>background job + progress + cooperative cancel; results published only when complete</td></tr>
+<tr><td>Errors</td><td>typed exceptions mapped to 400 / 409 / 413 / 422 (with line) / 504 (recoverable)</td></tr>
+<tr><td>Global FE matrix</td><td>tridiagonal storage, Thomas solve O(N); dense path kept for tests</td></tr>
+<tr><td>Reproducibility</td><td>vendored deps with SHA-256, fixed seed, pinned RNG mapping, CLI regenerates all data</td></tr>
+<tr><td>Security</td><td>loopback only, 64 MiB upload cap, no shell execution of user input</td></tr></table>
+</div></div>
+
+<h2>3. CAD / ANSYS data visualisation</h2>
+<div class="row"><div>
+<p>The STL parser is an explicit state machine over the facet grammar (case-insensitive keywords, CRLF). It rejects empty/whitespace files, binary STL (control bytes in the header), wrong keyword order, 2 or 4 vertices per facet, multiple solids, non-numeric and non-finite coordinates, reporting the line number; zero normals are recomputed and degenerate facets reported. The CSV parser requires <span class="m">node_id,x_m,y_m,z_m,temperature_C</span> (any order), and rejects missing/duplicate columns, wrong field counts, NaN/Inf, non-positive or duplicate node ids and temperatures below −273.15 °C. A rejected file never replaces the displayed model.</p>
+<p>Examples are self-created by the C++ generator: a 224-triangle finned heat-sink bracket and a <b>synthetic</b> 2583-node plate temperature field, labelled synthetic in the file and in the UI (not an ANSYS export). Tested limits: 340 000-triangle STL (46 MB) parsed in 470 ms, 1 000 000-node CSV in 1.3 s; 70 MB upload rejected with 413, 1 000 001 nodes rejected with a message.</p>
+</div><div class="fig"><img src="../walkthrough/windows_native/01_launch_exe_double_click_2026-11-01_2334.jpg" style="max-height:170px"><div class="cap">Fig. 1 First double-click launch on the target Windows 11 laptop (Edge app window, backend online on port 8765).</div>
+<p style="text-align:left">In the viewer, left-drag rotates, right-drag pans, wheel zooms; Fit/Isometric/Top reset the camera to the bounding box. The point cloud uses a blue-to-red ramp with a °C legend; clicking a node shows its id, x, y, z [m] and T [°C].</p></div></div>
+
+<h2>4. Thermal FEA: formulation and verification</h2>
+<p><b>Model.</b> −d/dx(kA dT/dx) = qA on 0 &lt; x &lt; 1 m; k = 10 W/(m·K), A = 1e-4 m², q = 1e4 W/m³, T(0) = 100 °C, T(L) = 20 °C; constant properties, insulated lateral surface, steady state. Exact: T(x) = 100 − 80x + 500x(1 − x), maximum 188.2 °C at x = 0.42 m.</p>
+<p><b>Discretisation.</b> N two-node linear elements, h = L/N; k<sup>e</sup> = (kA/h)[1 −1; −1 1], f<sup>e</sup> = (qAh/2)[1 1]<sup>T</sup> (exact for uniform q), assembled by element connectivity into a tridiagonal K. Both temperatures are imposed by symmetric elimination (known values moved to the right-hand side; row and column replaced by identity), so K stays SPD and T(0), T(L) are exact. Reactions R = K<sub>row</sub>T − F<sub>row</sub> from the unconstrained boundary rows give the end heat flows: R(0) = −0.42 W, R(L) = −0.58 W, summing to −qAL = −1 W within 1e-15 W.</p>
+<div class="row"><div class="fig"><img src="../../results/plots/fea_temperature_distribution.png"><div class="cap">Fig. 2 FE nodal temperatures for N = 10 to 80 against the exact solution.</div></div>
+<div class="fig"><img src="../../results/plots/fea_mesh_convergence.png" style="max-height:225px"><div class="cap">Fig. 3 Max midpoint error vs h (log-log) with slope-2 reference; nodal error is at round-off.</div></div></div>
+<table><tr><th>N</th><th>h [m]</th><th>max |e| at midpoints, FE interpolation [°C]</th><th>q h²/(8k) [°C]</th><th>max |e| at nodes [°C]</th><th>observed order</th></tr>
+<tr><td>10</td><td>0.1</td><td>1.250000</td><td>1.25</td><td>2.8e-14</td><td>–</td></tr>
+<tr><td>20</td><td>0.05</td><td>0.312500</td><td>0.3125</td><td>2.0e-13</td><td>2.0000</td></tr>
+<tr><td>40</td><td>0.025</td><td>0.078125</td><td>0.078125</td><td>8.8e-13</td><td>2.0000</td></tr>
+<tr><td>80</td><td>0.0125</td><td>0.019531</td><td>0.01953125</td><td>1.2e-12</td><td>2.0000</td></tr></table>
+<p><b>Verification.</b> Hand-computed 2-element K and F; tridiagonal solution equals an independent dense Gaussian elimination (N = 1, 3, 10, 37); K symmetric after BCs; midpoint error equals q h²/8k at every element (since nodes are exact and T″ = −q/k is constant, the chord error at the midpoint is h²|T″|/8); order 2.0 ± 1e-6; q = 0 is reproduced exactly; invalid k, L, A, T and N are rejected. Raw data: <span class="m">results/csv/fea_*.csv</span>.</p>
+<div class="box"><b>Debugging insight.</b> The first run showed nodal errors of about 1e-13 °C for every mesh, even N = 10. A nodal-only check would have reported a perfect solver. For 1D linear elements on this problem the FE solution interpolates the exact solution at the nodes, so the real discretisation error lives between nodes; that is why the error is measured at midpoints through the shape functions, and why the nodal column is kept as a contrast. A second check: the expected sign of the left reaction was resolved by writing out the weak-form boundary term −kA T′(0) with T′(0) = +420 K/m, i.e. 0.42 W leaves the rod.</div>
+<p><b>Interdisciplinary adoption.</b> Banded linear algebra, empirical convergence rates on log-log axes and testing against an analytical oracle carried over directly from computing/ML; the weak form, Dirichlet treatment on the assembled system and reactions as an energy-balance check were the new mechanical-engineering ideas, each tied to a test.</p>
+
+<h2>5. Parallel performance</h2>
+<p><b>Workload.</b> 2000 rods × 2000 elements; k ∈ [1, 400] W/(m·K), q ∈ [1e3, 1e5] W/m³ from <span class="m">mt19937_64</span>(seed 20262027) with an explicit 53-bit mapping (the standard distributions are implementation-defined; a test pins the first draw across compilers). Each case runs the same <span class="m">solveCase()</span> in both paths. Serial = plain loop. Parallel = bounded pool of p <span class="m">std::thread</span>s created before timing, ~8 contiguous chunks per worker, each writing its own pre-allocated slice, so output order equals input order without locks. Timed with <span class="m">steady_clock</span>: dispatch + compute + join only (generation, thread creation, I/O, rendering excluded). 1 warm-up + 5 runs, median; S = T<sub>1</sub>/T<sub>p</sub> (1-worker pool), E = S/p; p capped at logical CPUs.</p>
+<div class="row"><div>
+<table><tr><th colspan="6">Target laptop: Windows 11, Core i5-14450HX (10 physical / 16 logical), 24 GiB, MinGW-w64 GCC 13 -O3, static</th></tr>
+<tr><th>Mode</th><th>p</th><th>median [s]</th><th>S</th><th>E</th><th>max |ΔT| [°C]</th></tr>
+<tr><td>serial</td><td>1</td><td>0.1138</td><td>–</td><td>–</td><td>ref.</td></tr>
+<tr><td>pool</td><td>1</td><td>0.1146</td><td>1.00</td><td>1.00</td><td>0</td></tr>
+<tr><td>pool</td><td>2</td><td>0.0563</td><td>2.04</td><td>1.02</td><td>0</td></tr>
+<tr><td>pool</td><td>3</td><td>0.0422</td><td>2.72</td><td>0.91</td><td>0</td></tr>
+<tr><td>pool</td><td>4</td><td>0.0315</td><td>3.63</td><td>0.91</td><td>0</td></tr></table>
+<table><tr><th colspan="6">Cloud sandbox: Xeon 2.1 GHz VM (2 physical / 2 logical), 7.8 GiB, GCC 13.3 -O3</th></tr>
+<tr><td>serial</td><td>1</td><td>0.1763</td><td>–</td><td>–</td><td>ref.</td></tr>
+<tr><td>pool</td><td>1 / 2</td><td>0.1992 / 0.1016</td><td>1.00 / 1.96</td><td>1.00 / 0.98</td><td>0 / 0</td></tr>
+<tr><td colspan="6">p = 3, 4 skipped (exceed 2 logical CPUs; not oversubscribed)</td></tr></table>
+</div><div class="fig"><img src="../../results/plots/benchmark_windows11_i5-14450HX_cases2000_N2000.png"><div class="cap">Fig. 4 Median time and speedup/efficiency, target laptop.</div></div></div>
+<p><b>Analysis.</b> Results are bitwise identical because each case runs the same code on the same inputs; only the thread differs. The 1.02 efficiency at p = 2 is within noise (the five p = 1 runs span ±9 %), not true superlinear speedup. Efficiency falls to 0.91 at p = 3–4 because a whole run is only about 30 ms, so fixed chunk dispatch/join cost is visible, and on a hybrid CPU a worker may land on an efficiency core, which delays the last chunk. On the cloud VM the first measured run was ~2× slower than the rest (first-touch page faults/shared host); the median absorbs it. The pool itself is cheap (p = 1 within 0.7 % of serial on Windows). No minimum speedup is claimed; larger batches would amortise overhead better. Launch-to-ready is reported separately (388 ms backend, 705 ms UI, first run).</p>
+
+<h2>6. Embedded-system integration</h2>
+<div class="fig"><img src="../hardware/block_diagram.png" style="max-height:215px"><div class="cap">Fig. 5 Host-connected bench (design; all three devices are simulated in software).</div></div>
+<table><tr><th>Link</th><th>Connector (assumed)</th><th>Signals</th><th>Voltage / level shifting</th><th>Ownership</th></tr>
+<tr><td>Host → powered hub</td><td>USB-A</td><td>USB 2.0, VBUS, GND</td><td>5 V; hub 5 V/3 A, common ground</td><td>host</td></tr>
+<tr><td>Hub → NUCLEO-F446RE</td><td>Mini-B (ST-LINK)</td><td>CDC UART 115200 8N1 + debug</td><td>5 V in, 3.3 V logic</td><td>host</td></tr>
+<tr><td>Hub → Basys 3</td><td>Micro-B (FT2232HQ)</td><td>ch. A JTAG (configuration), ch. B UART</td><td>5 V in; 3.3 V LVCMOS33 I/O, 1.0 V core</td><td>host</td></tr>
+<tr><td>Probe → MCU</td><td>10-pin 1.27 mm Cortex Debug</td><td>VTref, SWDIO/TMS, SWCLK/TCK, SWO/TDO, TDI, nRESET, GND</td><td>3.3 V; shifting inside probe, referenced to VTref (1.2–5 V)</td><td>probe drives TCK/TMS/TDI/nRESET; target drives TDO; CN2 jumpers removed so ST-LINK releases PA13/PA14</td></tr>
+<tr><td>MCU ↔ FPGA (optional)</td><td>Morpho ↔ Pmod JA</td><td>SPI SCK/MOSI/MISO/CS + GND</td><td>both 3.3 V; series resistors; no shifter needed</td><td>MCU master</td></tr></table>
+<p><b>JTAG adapter vs compute board.</b> The adapter is a debug/programming interface: it turns host commands into IEEE 1149.1 TAP or Arm SWD transactions on another chip, adapts to the target's voltage through VTref and runs no user application, so it is modelled with its own capabilities (VTref, TCK, target IDCODE 0x4BA00477, chain length) rather than as a third interchangeable board. The design does not assume a shared connector, voltage or protocol; one driver per TCK/TMS/TDI net is enforced by isolating the on-board ST-LINK.</p>
+<p><b>Software.</b> <span class="m">IDeviceAdapter</span> (discovery via <span class="m">DeviceManager</span>, capabilities, connect/disconnect, telemetry, state, last error, fault injection) is implemented by three mocks over a common state machine (Disconnected → Connected → Faulted → recovered). The mock link answers in 2–8 ms; an injected fault makes the device stay silent so the host waits its full 250 ms deadline and raises a recoverable timeout (HTTP 504); <i>Recover</i> resets the link and reconnects with up to 3 attempts and 50/100/200 ms backoff. Everything is labelled SIMULATED in the UI, API and telemetry. <b>Safe integration plan:</b> check jumpers; power each board alone from the powered hub and confirm enumeration and 3.3 V rails; talk to each over its own UART; swap one mock for a real adapter at a time behind the same interface; attach the probe last with the target powered first and VTref ≈ 3.3 V; wire the MCU–FPGA link with power off. Limits: no real I/O, simulated values, pinouts from vendor manuals not verified on hardware.</p>
+
+<h2>7. Backpropagation (Task F)</h2>
+<div class="row"><div>
+<p>Forward at w = 0.5, b = 0, v = 1, c = 0, x = 1, y = 2: z = 0.5, h = tanh 0.5 = 0.462117, ŷ = 0.462117, J = 1.182542. Chain rule: ∂J/∂c = ŷ − y = −1.537883; ∂J/∂v = (ŷ − y)h = −0.710682; ∂J/∂z = (ŷ − y)v(1 − h²) = −1.209464 = ∂J/∂w = ∂J/∂b. Simultaneous update with η = 0.1 (all gradients from the original parameters): w = 0.620946, b = 0.120946, v = 1.071068, c = 0.153788; J falls to 0.685774. All gradients are negative because ŷ is below the target and every parameter raises ŷ, so descent increases all four; c moves most because ŷ depends on it directly.</p>
+<p>The C++ implementation (<span class="m">src/ml/backprop.cpp</span>) codes each chain-rule factor by hand (no autodiff). Central differences with ε = 1e-6 agree within 1.1e-10 (w, b, c) and 5.3e-11 (v). Over 100 steps at η = 0.1 the loss decreases monotonically to 1.7e-20: one sample and four parameters can be fitted exactly, so the error contracts geometrically until round-off. The handwritten derivation is in the two-page appendix (candidate's own handwriting).</p>
+</div><div class="fig"><img src="../../results/plots/backprop_loss.png" style="max-height:200px"><div class="cap">Fig. 6 Loss over 100 steps (log scale).</div></div></div>
+
+<h2>8. Testing outcomes</h2>
+<p>62 doctest cases (1276 assertions): positive parsing, solver and mock-device paths; negative cases (empty/malformed/binary STL, missing CSV columns, non-numeric, NaN/Inf, invalid thermal parameters, zero/invalid workers and dimensions, device timeout, invalid fault names and learning rates); numerical checks (analytical vs FE, midpoint error, convergence order, dense cross-check, energy balance, serial/parallel agreement, reproducible seeds, finite-difference gradients). Results: pass on Linux GCC 13, on the Windows binary under Wine 9.0, and natively on the target laptop via <span class="m">bin\RunTests.cmd</span>. A Playwright walkthrough of all views (17 steps, timestamped screenshots and log in <span class="m">docs/walkthrough</span>) passes with zero console errors. Defects found by testing and fixed: a wrong hand-rounded gradient in a test, a UI button broken by a form field named <span class="m">elements</span>, an 8 KiB upload cap for non-text clients, and a test that truncated input mid-line.</p>
+
+<h2>9. Limitations and future work</h2>
+<ul>
+<li>UI runs in an Edge app window rather than a native toolkit; closing it leaves the backend running until the console window is closed or Quit is pressed. A WebView2 host would give a single window.</li>
+<li>Hardware is simulated; next step is a Win32 serial adapter behind <span class="m">IDeviceAdapter</span> and real enumeration.</li>
+<li>FEA is 1D linear, uniform mesh, steady state; natural extensions are quadratic elements, convection/flux BCs and non-uniform k(x).</li>
+<li>Benchmark runs are short on fast CPUs; a larger default batch and thread pinning would give smoother scaling curves. The exe is unsigned (SmartScreen may warn once).</li>
+<li>STL: ASCII only, no mesh repair; STL/CSV registration not implemented (not required). Browser rendering time for very large meshes was not benchmarked.</li>
+<li>AI assistance generated the code and documents; validation evidence is listed in <span class="m">AI_USE_LOG.md</span>.</li>
+</ul>
+</body></html>

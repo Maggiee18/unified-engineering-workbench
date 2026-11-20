@@ -1,0 +1,8 @@
+CPU: Intel(R) Core(TM) i5-14450HX | physical 10 | logical 16 | RAM 24207 MiB
+Compiler: MinGW-w64 GCC 13-posix | flags: -O3 -DNDEBUG
+  3%  serial warm-up              6%  serial run 1              10%  serial run 2              13%  serial run 3              16%  serial run 4              20%  serial run 5              23%  p=1 warm-up              26%  p=1 run 1              30%  p=1 run 2              33%  p=1 run 3              36%  p=1 run 4              40%  p=1 run 5              43%  p=2 warm-up              46%  p=2 run 1              50%  p=2 run 2              53%  p=2 run 3              56%  p=2 run 4              60%  p=2 run 5              63%  p=3 warm-up              66%  p=3 run 1              70%  p=3 run 2              73%  p=3 run 3              76%  p=3 run 4              80%  p=3 run 5              83%  p=4 warm-up              86%  p=4 run 1              90%  p=4 run 2              93%  p=4 run 3              96%  p=4 run 4              100%  p=4 run 5            
+serial median 0.1137783 s
+p=1 median 0.1146046 s, speedup 1, efficiency 1, max|dT| 0 C
+p=2 median 0.056311399999999998 s, speedup 2.0351935842475948, efficiency 1.0175967921237974, max|dT| 0 C
+p=3 median 0.042189600000000001 s, speedup 2.7164182642167738, efficiency 0.90547275473892463, max|dT| 0 C
+p=4 median 0.031540400000000003 s, speedup 3.6335810579447307, efficiency 0.90839526448618269, max|dT| 0 C

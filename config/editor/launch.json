@@ -1,0 +1,15 @@
+{
+  // F5 (Run and Debug > "Run Workbench (packaged)") starts the same Launch.exe.
+  // Uses the built-in JavaScript debugger's terminal launcher, so no extension
+  // has to be installed; nothing is compiled.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Workbench (packaged)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": ".\\Launch.exe",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

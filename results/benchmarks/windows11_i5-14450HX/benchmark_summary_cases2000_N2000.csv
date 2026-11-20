@@ -1,0 +1,9 @@
+# cpu=Intel(R) Core(TM) i5-14450HX; physical_cores=10; logical_cpus=16; ram_bytes=25383882752
+# os=Windows 11 (build 26300); compiler=MinGW-w64 GCC 13-posix; build=Release; flags=-O3 -DNDEBUG
+# cases=2000; elements_per_case=2000; seed=20262027; warmups=1; repetitions=5
+mode,workers,median_s,speedup_T1_over_Tp,efficiency,speedup_vs_serial,max_abs_diff_vs_serial_C,agreement_pass,skipped
+serial,1,0.1137783,,,1,0,true,false
+parallel,1,0.1146046,1,1,0.99278999272280521,0,true,false
+parallel,2,0.056311399999999998,2.0351935842475948,1.0175967921237974,2.0205198236946695,0,true,false
+parallel,3,0.042189600000000001,2.7164182642167738,0.90547275473892463,2.6968328687638659,0,true,false
+parallel,4,0.031540400000000003,3.6335810579447307,0.90839526448618269,3.6073829120746721,0,true,false

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unified Engineering Workbench</title>
+<link rel="stylesheet" href="styles.css">
+<script src="vendor/chart.umd.js"></script>
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar" aria-label="Views">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">UW</div>
+      <div><div class="brand-name">Engineering Workbench</div><div class="brand-sub">C++17 core · v1.0.0</div></div>
+    </div>
+    <button class="nav-item active" data-view="geometry"><span class="nav-ico">◆</span>Geometry</button>
+    <button class="nav-item" data-view="thermal"><span class="nav-ico">∿</span>Thermal Analysis</button>
+    <button class="nav-item" data-view="performance"><span class="nav-ico">▤</span>Performance</button>
+    <button class="nav-item" data-view="hardware"><span class="nav-ico">⌁</span>Hardware</button>
+    <button class="nav-item" data-view="backprop"><span class="nav-ico">∂</span>Backprop check</button>
+    <div class="sidebar-foot">
+      <div class="backend-status"><span id="backend-dot" class="dot dot-wait"></span><span id="backend-text">Connecting…</span></div>
+      <div class="foot-meta" id="launch-meta">&nbsp;</div>
+      <button class="btn btn-ghost btn-small" id="btn-quit" title="Stop the C++ backend and close">Quit workbench</button>
+    </div>
+  </nav>
+
+  <main class="main">
+    <!-- ======================================================= GEOMETRY -->
+    <section class="view active" id="view-geometry" aria-labelledby="h-geometry">
+      <header class="view-head">
+        <div><h1 id="h-geometry">Geometry &amp; result import</h1>
+          <p>ASCII STL geometry and ANSYS-style nodal temperature CSV, parsed and validated in C++.</p></div>
+        <div class="seg" role="tablist">
+          <button class="seg-btn active" data-geo-mode="stl" role="tab">STL geometry</button>
+          <button class="seg-btn" data-geo-mode="csv" role="tab">Nodal temperatures (CSV)</button>
+        </div>
+      </header>
+      <div class="split">
+        <aside class="panel-col">
+          <div class="card" id="geo-stl-panel">
+            <h2>STL file</h2>
+            <div class="btn-row">
+              <label class="btn btn-primary">Open STL…<input type="file" id="stl-file" accept=".stl,.STL" hidden></label>
+              <button class="btn" id="stl-example">Load example</button>
+            </div>
+            <p class="hint">ASCII STL only · limit 64 MiB / 1,000,000 triangles</p>
+            <div id="stl-error" class="alert alert-error" hidden></div>
+            <dl class="kv" id="stl-info"><dt>Status</dt><dd>No file loaded</dd></dl>
+          </div>
+          <div class="card" id="geo-csv-panel" hidden>
+            <h2>Nodal temperature CSV</h2>
+            <div class="btn-row">
+              <label class="btn btn-primary">Open CSV…<input type="file" id="csv-file" accept=".csv,.txt" hidden></label>
+              <button class="btn" id="csv-example">Load synthetic example</button>
+            </div>
+            <p class="hint">Columns: <code>node_id,x_m,y_m,z_m,temperature_C</code> · limit 64 MiB / 1,000,000 nodes</p>
+            <div id="csv-error" class="alert alert-error" hidden></div>
+            <div id="csv-synthetic" class="alert alert-warn" hidden></div>
+            <dl class="kv" id="csv-info"><dt>Status</dt><dd>No file loaded</dd></dl>
+            <label class="field-inline">Point size <input type="range" id="csv-point-size" min="1" max="12" value="5"></label>
+          </div>
+          <div class="card">
+            <h2>View</h2>
+            <div class="btn-row">
+              <button class="btn" id="view-fit">Fit to view</button>
+              <button class="btn" id="view-iso">Isometric</button>
+              <button class="btn" id="view-top">Top</button>
+            </div>
+            <label class="check"><input type="checkbox" id="view-wire"> Wireframe overlay</label>
+            <label class="check"><input type="checkbox" id="view-axes" checked> Axes &amp; bounding box</label>
+            <p class="hint">Left-drag rotate · right-drag (or Shift+drag) pan · wheel zoom</p>
+          </div>
+          <div class="card" id="node-inspect" hidden>
+            <h2>Node inspection</h2>
+            <dl class="kv" id="node-info"></dl>
+          </div>
+        </aside>
+        <div class="viewport-wrap">
+          <div id="viewport" class="viewport" tabindex="0" aria-label="3D viewport"></div>
+          <div class="viewport-empty" id="viewport-empty">Open a file or load an example to display it here.</div>
+          <div class="legend" id="legend" hidden>
+            <div class="legend-title">Temperature [°C]</div>
+            <div class="legend-body"><div class="legend-bar" id="legend-bar"></div><div class="legend-ticks" id="legend-ticks"></div></div>
+          </div>
+          <div class="viewport-badge" id="viewport-badge"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== THERMAL -->
+    <section class="view" id="view-thermal" aria-labelledby="h-thermal">
+      <header class="view-head">
+        <div><h1 id="h-thermal">1D steady-state thermal FEA</h1>
+          <p>−d/dx(kA dT/dx) = qA on 0&lt;x&lt;L, T(0)=T₀, T(L)=T<sub>L</sub> · two-node linear elements · uniform mesh</p></div>
+        <div class="btn-row">
+          <button class="btn" id="fea-reset">Reset to assignment values</button>
+        </div>
+      </header>
+      <div class="split">
+        <aside class="panel-col">
+          <form class="card" id="fea-form" novalidate>
+            <h2>Parameters</h2>
+            <div class="grid2">
+              <label class="field">Length L <span class="unit">m</span><input name="L" type="number" step="any" value="1"></label>
+              <label class="field">Area A <span class="unit">m²</span><input name="A" type="number" step="any" value="0.0001"></label>
+              <label class="field">Conductivity k <span class="unit">W/(m·K)</span><input name="k" type="number" step="any" value="10"></label>
+              <label class="field">Heat gen. q <span class="unit">W/m³</span><input name="q" type="number" step="any" value="10000"></label>
+              <label class="field">T(0) <span class="unit">°C</span><input name="T0" type="number" step="any" value="100"></label>
+              <label class="field">T(L) <span class="unit">°C</span><input name="TL" type="number" step="any" value="20"></label>
+            </div>
+            <h3>Mesh</h3>
+            <label class="field">Elements for single solve N<input name="N" type="number" step="1" min="1" value="10"></label>
+            <div class="field">Convergence study meshes
+              <div class="chips" id="fea-meshes">
+                <label><input type="checkbox" value="10" checked>10</label><label><input type="checkbox" value="20" checked>20</label>
+                <label><input type="checkbox" value="40" checked>40</label><label><input type="checkbox" value="80" checked>80</label>
+                <label><input type="checkbox" value="160">160</label>
+              </div>
+            </div>
+            <div id="fea-error" class="alert alert-error" hidden></div>
+            <div class="btn-row">
+              <button class="btn btn-primary" type="button" id="fea-run-study">Run convergence study</button>
+              <button class="btn" type="button" id="fea-run-single">Solve single mesh</button>
+            </div>
+            <div class="progress slim" id="fea-progress" hidden><div class="progress-bar indeterminate"></div></div>
+          </form>
+          <div class="card">
+            <h2>Export</h2>
+            <div class="btn-row">
+              <button class="btn" id="fea-exp-nodal" disabled>Nodal CSV</button>
+              <button class="btn" id="fea-exp-mid" disabled>Midpoint CSV</button>
+              <button class="btn" id="fea-exp-conv" disabled>Convergence CSV</button>
+              <button class="btn" id="fea-exp-png" disabled>Plots PNG</button>
+            </div>
+          </div>
+          <details class="card note">
+            <summary>Assumptions &amp; method</summary>
+            <ul>
+              <li>Constant k, A, q; insulated lateral surface; steady state.</li>
+              <li>k<sup>e</sup> = (kA/h)[1 −1; −1 1], f<sup>e</sup> = (qAh/2)[1 1]ᵀ, assembled into a tridiagonal K.</li>
+              <li>T(0), T(L) imposed by symmetric elimination (known values moved to the RHS).</li>
+              <li>Errors are evaluated at element midpoints using FE interpolation T<sub>h</sub> = N₁T<sub>e</sub>+N₂T<sub>e+1</sub>.</li>
+              <li>Nodal values of 1D linear elements are exact for this problem, so nodal-only error would wrongly suggest zero error.</li>
+            </ul>
+          </details>
+        </aside>
+        <div class="content-col">
+          <div class="kpis" id="fea-kpis"></div>
+          <div class="chart-grid">
+            <div class="card chart-card wide"><h2>Temperature distribution T(x)</h2><div class="chart-box"><canvas id="chart-temp"></canvas></div></div>
+            <div class="card chart-card"><h2>Midpoint error T<sub>exact</sub> − T<sub>h</sub></h2><div class="chart-box"><canvas id="chart-miderr"></canvas></div></div>
+            <div class="card chart-card"><h2>Mesh convergence (log–log)</h2><div class="chart-box"><canvas id="chart-conv"></canvas></div></div>
+          </div>
+          <div class="card"><h2>Convergence table</h2><div class="table-wrap"><table class="data" id="fea-table"><thead><tr>
+            <th>N</th><th>h [m]</th><th>max |e| at midpoints [°C]</th><th>q h²/(8k) [°C]</th><th>max |e| at nodes [°C]</th><th>observed order</th></tr></thead><tbody><tr><td colspan="6" class="muted">Run the convergence study.</td></tr></tbody></table></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================== PERFORMANCE -->
+    <section class="view" id="view-performance" aria-labelledby="h-perf">
+      <header class="view-head">
+        <div><h1 id="h-perf">Multicore batch performance</h1>
+          <p>Independent thermal solves on a bounded std::thread pool vs. a serial loop · warm-up + measured repetitions · median wall-clock</p></div>
+      </header>
+      <div class="split">
+        <aside class="panel-col">
+          <form class="card" id="perf-form" novalidate>
+            <h2>Batch configuration</h2>
+            <div class="grid2">
+              <label class="field">Cases<input name="cases" type="number" min="1" step="1" value="2000"></label>
+              <label class="field">Elements / case<input name="elementsPerCase" type="number" min="1" step="1" value="2000"></label>
+              <label class="field">Seed<input name="seed" type="number" min="0" step="1" value="20262027"></label>
+              <label class="field">Warm-up runs<input name="warmups" type="number" min="0" max="10" step="1" value="1"></label>
+              <label class="field">Measured repetitions<input name="repetitions" type="number" min="1" max="50" step="1" value="5"></label>
+            </div>
+            <div class="field">Worker counts
+              <div class="chips" id="perf-workers">
+                <label><input type="checkbox" value="1" checked>1</label><label><input type="checkbox" value="2" checked>2</label>
+                <label><input type="checkbox" value="3" checked>3</label><label><input type="checkbox" value="4" checked>4</label>
+              </div>
+              <div class="hint" id="perf-cpu-hint"></div>
+            </div>
+            <p class="hint">k ∈ [1, 400] W/(m·K), q ∈ [10³, 10⁵] W/m³ drawn from mt19937_64(seed); identical cases and solver for serial and parallel.</p>
+            <div id="perf-error" class="alert alert-error" hidden></div>
+            <div class="btn-row">
+              <button class="btn btn-primary" type="button" id="perf-start">Run benchmark</button>
+              <button class="btn btn-danger" type="button" id="perf-cancel" disabled>Cancel</button>
+            </div>
+            <div class="progress" id="perf-progress" hidden><div class="progress-bar" id="perf-bar"></div></div>
+            <div class="hint" id="perf-progress-text"></div>
+          </form>
+          <div class="card"><h2>Host</h2><dl class="kv" id="sys-info"></dl></div>
+          <div class="card"><h2>Export</h2><div class="btn-row">
+            <button class="btn" id="perf-exp-summary" disabled>Summary CSV</button>
+            <button class="btn" id="perf-exp-runs" disabled>Runs CSV</button>
+            <button class="btn" id="perf-exp-json" disabled>JSON</button>
+            <button class="btn" id="perf-exp-png" disabled>Plots PNG</button></div></div>
+        </aside>
+        <div class="content-col">
+          <div class="kpis" id="perf-kpis"></div>
+          <div class="chart-grid">
+            <div class="card chart-card"><h2>Median compute time</h2><div class="chart-box"><canvas id="chart-time"></canvas></div></div>
+            <div class="card chart-card"><h2>Speedup T₁/T<sub>p</sub> and efficiency</h2><div class="chart-box"><canvas id="chart-speedup"></canvas></div></div>
+          </div>
+          <div class="card"><h2>Results</h2><div class="table-wrap"><table class="data" id="perf-table"><thead><tr>
+            <th>Mode</th><th>p</th><th>Median [s]</th><th>5 runs [s]</th><th>Speedup T₁/T<sub>p</sub></th><th>Efficiency</th><th>max |ΔT| vs serial [°C]</th><th>≤ 1e-8 °C</th></tr></thead>
+            <tbody><tr><td colspan="8" class="muted">Run a benchmark to populate this table.</td></tr></tbody></table></div>
+            <p class="hint" id="perf-analysis"></p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================= HARDWARE -->
+    <section class="view" id="view-hardware" aria-labelledby="h-hw">
+      <header class="view-head">
+        <div><h1 id="h-hw">Embedded hardware workbench</h1>
+          <p>Host-connected microcontroller, FPGA and JTAG debug adapter through a common C++ adapter interface.</p></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="hw-discover">Discover devices</button>
+          <label class="check"><input type="checkbox" id="hw-autopoll"> Poll telemetry (1 Hz)</label>
+        </div>
+      </header>
+      <div class="alert alert-sim"><strong>SIMULATED HARDWARE.</strong> All three devices are C++ mock adapters. No USB, UART or JTAG traffic is generated; telemetry values, enumeration IDs and timeouts are simulated.</div>
+      <div class="hw-grid" id="hw-devices"></div>
+      <div class="split-even">
+        <div class="card"><h2>Architecture (host-connected)</h2><div id="hw-diagram"></div></div>
+        <div class="card"><h2>Device event log</h2><div class="log" id="hw-log"></div></div>
+      </div>
+    </section>
+
+    <!-- ======================================================= BACKPROP -->
+    <section class="view" id="view-backprop" aria-labelledby="h-bp">
+      <header class="view-head">
+        <div><h1 id="h-bp">Backpropagation check</h1>
+          <p>h = tanh(wx+b), ŷ = vh + c, J = ½(ŷ−y)² · hand-coded chain rule in C++ · central finite differences</p></div>
+      </header>
+      <div class="split">
+        <aside class="panel-col">
+          <form class="card" id="bp-form" novalidate>
+            <h2>Inputs</h2>
+            <div class="grid2">
+              <label class="field">w<input name="w" type="number" step="any" value="0.5"></label>
+              <label class="field">b<input name="b" type="number" step="any" value="0"></label>
+              <label class="field">v<input name="v" type="number" step="any" value="1"></label>
+              <label class="field">c<input name="c" type="number" step="any" value="0"></label>
+              <label class="field">x<input name="x" type="number" step="any" value="1"></label>
+              <label class="field">y (target)<input name="y" type="number" step="any" value="2"></label>
+              <label class="field">Learning rate η<input name="learningRate" type="number" step="any" value="0.1"></label>
+              <label class="field">ε (finite diff.)<input name="epsilon" type="number" step="any" value="0.000001"></label>
+              <label class="field">Training steps<input name="steps" type="number" step="1" value="100"></label>
+            </div>
+            <div id="bp-error" class="alert alert-error" hidden></div>
+            <div class="btn-row"><button class="btn btn-primary" type="button" id="bp-run">Compute</button>
+              <button class="btn" type="button" id="bp-exp" disabled>Loss CSV</button></div>
+          </form>
+        </aside>
+        <div class="content-col">
+          <div class="chart-grid">
+            <div class="card"><h2>Forward pass &amp; chain rule</h2><table class="data" id="bp-forward"></table></div>
+            <div class="card"><h2>Gradient check (|analytic − numerical| ≤ 1e-5)</h2><table class="data" id="bp-grads"></table></div>
+            <div class="card"><h2>One simultaneous update θ ← θ − η∇J(θ₀)</h2><table class="data" id="bp-update"></table></div>
+            <div class="card chart-card"><h2>Loss over training steps</h2><div class="chart-box"><canvas id="chart-loss"></canvas></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<footer class="statusbar">
+  <span id="status-text">Ready.</span>
+  <button class="btn-link" id="log-toggle">Show log</button>
+</footer>
+<div class="logpanel" id="logpanel" hidden><div class="log" id="app-log"></div></div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

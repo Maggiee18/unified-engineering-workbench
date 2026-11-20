@@ -1,0 +1,10 @@
+[doctest] doctest version is "2.4.11"
+[doctest] run with "--help" for options
+===============================================================================
+[doctest] test cases:   62 |   62 passed | 0 failed | 0 skipped
+[doctest] assertions: 1276 | 1276 passed | 0 failed |
+[doctest] Status: SUCCESS!
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.65 sec

@@ -1,0 +1,5 @@
+# build-win/workbench_tests.exe (MinGW-w64 GCC 13, static) executed under wine-9.0 (Ubuntu 9.0~repack-4build3) in the Linux cloud sandbox, 2026-11-01
+===============================================================================
+[doctest] test cases:   62 |   62 passed | 0 failed | 0 skipped
+[doctest] assertions: 1276 | 1276 passed | 0 failed |
+[doctest] Status: SUCCESS!

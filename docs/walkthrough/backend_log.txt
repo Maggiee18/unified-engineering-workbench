@@ -1,0 +1,37 @@
+# Backend console output of Launch.exe (Windows build) under Wine during the walkthrough
+Unified Engineering Workbench 1.0.0
+  C++17 backend, local-only HTTP transport (127.0.0.1)
+  data folder: Z:\tmp\pkgtest\data
+  backend ready in 65 ms (process start -> listening)
+  UI: http://127.0.0.1:9300/
+Close this window or press Quit in the UI to stop the workbench.
+
+[app] UI ready 6099 ms after process start
+[api] POST /api/ui-ready -> 200 (0 ms)
+[api] GET /api/system -> 200 (0 ms)
+[api] POST /api/thermal/convergence -> 200 (0 ms)
+[api] GET /api/hardware/devices -> 200 (0 ms)
+[api] POST /api/ml/backprop -> 200 (0 ms)
+[api] GET /api/geometry/example -> 200 (2 ms)
+[api] GET /api/system -> 200 (0 ms)
+[api] GET /api/system -> 200 (0 ms)
+[api] POST /api/geometry/stl -> 422 (0 ms)
+[api] POST /api/geometry/stl -> 422 (0 ms)
+[api] GET /api/results/example -> 200 (4 ms)
+[api] GET /api/system -> 200 (0 ms)
+[api] POST /api/results/nodal-csv -> 422 (0 ms)
+[api] POST /api/performance/benchmark -> 202 (1 ms)
+[api] POST /api/performance/benchmark -> 202 (0 ms)
+[api] POST /api/hardware/discover -> 200 (0 ms)
+[api] POST /api/hardware/mcu0/connect -> 200 (5 ms)
+[api] POST /api/hardware/mcu0/telemetry -> 200 (5 ms)
+[api] POST /api/hardware/fpga0/connect -> 200 (7 ms)
+[api] POST /api/hardware/fpga0/telemetry -> 200 (11 ms)
+[api] POST /api/hardware/jtag0/connect -> 200 (7 ms)
+[api] POST /api/hardware/jtag0/telemetry -> 200 (3 ms)
+[api] POST /api/hardware/fpga0/fault -> 200 (0 ms)
+[api] GET /api/system -> 200 (0 ms)
+[api] POST /api/hardware/fpga0/telemetry -> 504 (250 ms)
+[api] GET /api/hardware/devices -> 200 (0 ms)
+[api] POST /api/hardware/fpga0/recover -> 200 (6 ms)
+[api] POST /api/hardware/fpga0/telemetry -> 200 (2 ms)

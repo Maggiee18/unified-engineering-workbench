@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Backpropagation derivation reference sheet</title>
+<style>
+@page { size: A4; margin: 14mm 16mm; }
+body { font: 10.5pt/1.45 "Segoe UI", Arial, sans-serif; color: #111; }
+h1 { font-size: 15pt; margin: 0 0 2px; } h2 { font-size: 11.5pt; margin: 12px 0 4px; border-bottom: 1px solid #999; }
+.note { background: #fff4e0; border: 1px solid #e0b25c; padding: 6px 9px; font-size: 9.5pt; margin: 6px 0 8px; }
+table { border-collapse: collapse; width: 100%; margin: 4px 0; } td, th { border: 1px solid #aaa; padding: 3px 6px; text-align: left; font-size: 10pt; }
+th { background: #eef1f5; } .m { font-family: Consolas, "Courier New", monospace; }
+.pb { page-break-before: always; }
+</style></head><body>
+<h1>Task F: backpropagation derivation (reference for the handwritten appendix)</h1>
+<div class="note"><b>How to use this sheet.</b> The brief requires the derivation to be <b>handwritten</b> by the candidate and submitted as legible scans/photos (max 2 pages). This sheet is a checking reference only and is <b>not</b> the handwritten appendix. Work through it by hand, in your own words, and compare your numbers with the values below (computed by the C++ code in <span class="m">src/ml/backprop.cpp</span>, rounded to 6 decimals).</div>
+
+<h2>1. Model and data</h2>
+<p>One sample x = 1, target y = 2. &nbsp; z = w x + b, &nbsp; h = tanh(z), &nbsp; ŷ = v h + c, &nbsp; J = ½ (ŷ − y)².<br>
+Initial parameters: w = 0.5, b = 0, v = 1, c = 0. Learning rate η = 0.1.</p>
+
+<h2>2. Forward pass</h2>
+<table><tr><th>Step</th><th>Expression</th><th>Value</th></tr>
+<tr><td>z</td><td>w·x + b = 0.5·1 + 0</td><td class="m">0.500000</td></tr>
+<tr><td>h</td><td>tanh(0.5)</td><td class="m">0.462117</td></tr>
+<tr><td>ŷ</td><td>v·h + c = 1·0.462117 + 0</td><td class="m">0.462117</td></tr>
+<tr><td>error e</td><td>ŷ − y = 0.462117 − 2</td><td class="m">−1.537883</td></tr>
+<tr><td>J</td><td>½ e² = ½ (−1.537883)²</td><td class="m">1.182542</td></tr></table>
+
+<h2>3. Chain rule (backward pass)</h2>
+<table><tr><th>Derivative</th><th>Rule</th><th>Value</th></tr>
+<tr><td>∂J/∂ŷ</td><td>d/dŷ [½(ŷ−y)²] = ŷ − y</td><td class="m">−1.537883</td></tr>
+<tr><td>∂J/∂c</td><td>∂J/∂ŷ · ∂ŷ/∂c = (ŷ−y)·1</td><td class="m">−1.537883</td></tr>
+<tr><td>∂J/∂v</td><td>∂J/∂ŷ · ∂ŷ/∂v = (ŷ−y)·h = −1.537883 · 0.462117</td><td class="m">−0.710682</td></tr>
+<tr><td>∂J/∂h</td><td>∂J/∂ŷ · ∂ŷ/∂h = (ŷ−y)·v</td><td class="m">−1.537883</td></tr>
+<tr><td>∂h/∂z</td><td>d/dz tanh z = 1 − tanh² z = 1 − 0.213552</td><td class="m">0.786448</td></tr>
+<tr><td>∂J/∂z</td><td>∂J/∂h · ∂h/∂z = −1.537883 · 0.786448</td><td class="m">−1.209464</td></tr>
+<tr><td>∂J/∂w</td><td>∂J/∂z · ∂z/∂w = ∂J/∂z · x</td><td class="m">−1.209464</td></tr>
+<tr><td>∂J/∂b</td><td>∂J/∂z · ∂z/∂b = ∂J/∂z · 1</td><td class="m">−1.209464</td></tr></table>
+
+<h2>4. One simultaneous gradient descent update</h2>
+<p>All four gradients are computed at the <b>original</b> parameters first, then every parameter is updated at once: θ<sub>new</sub> = θ − η ∂J/∂θ.</p>
+<table><tr><th>θ</th><th>θ old</th><th>∂J/∂θ</th><th>−η ∂J/∂θ</th><th>θ new</th></tr>
+<tr><td>w</td><td class="m">0.5</td><td class="m">−1.209464</td><td class="m">+0.120946</td><td class="m">0.620946</td></tr>
+<tr><td>b</td><td class="m">0</td><td class="m">−1.209464</td><td class="m">+0.120946</td><td class="m">0.120946</td></tr>
+<tr><td>v</td><td class="m">1</td><td class="m">−0.710682</td><td class="m">+0.071068</td><td class="m">1.071068</td></tr>
+<tr><td>c</td><td class="m">0</td><td class="m">−1.537883</td><td class="m">+0.153788</td><td class="m">0.153788</td></tr></table>
+<p>Check: with the new parameters z = 0.741893, h = 0.630287, ŷ = 0.828869 and J = 0.685774 (down from 1.182542).</p>
+
+<h2>5. Gradient direction</h2>
+<p>The prediction (0.462) is below the target (2), so e = ŷ − y is negative. Every parameter currently pushes ŷ upward when it increases (∂ŷ/∂c = 1, ∂ŷ/∂v = h &gt; 0, and w, b act through tanh′(z) &gt; 0 and v &gt; 0), so every gradient has the sign of e, i.e. negative. Gradient descent moves opposite to the gradient, so all four parameters increase, ŷ rises toward 2 and the loss falls. c gets the largest step because ŷ depends on it directly; w and b are scaled down by tanh′(0.5) = 0.786 and v by h = 0.462.</p>
+
+<h2>6. Numerical check (done in C++, not required by hand)</h2>
+<p>Central differences ∂J/∂θ ≈ [J(θ+ε) − J(θ−ε)] / (2ε), ε = 1e-6. Absolute differences from the analytic gradients: w 1.1e-10, b 1.1e-10, v 5.3e-11, c 1.1e-10, all ≤ 1e-5 (<span class="m">results/csv/backprop_gradient_check.csv</span>). Loss after 100 further steps with η = 0.1: 1.7e-20 (<span class="m">results/plots/backprop_loss.png</span>). The loss falls quickly at first, then geometrically, because one sample with four parameters can be fitted exactly; the curve flattens only at floating point round-off.</p>
+</body></html>

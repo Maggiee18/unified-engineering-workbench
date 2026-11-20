@@ -1,0 +1,12 @@
+# Build trees and packaging output (reproducible from source)
+build*/
+dist/
+package/
+*.zip
+# Editor / OS noise
+.vs/
+*.user
+.DS_Store
+Thumbs.db
+# Runtime logs written next to Launch.exe
+logs/

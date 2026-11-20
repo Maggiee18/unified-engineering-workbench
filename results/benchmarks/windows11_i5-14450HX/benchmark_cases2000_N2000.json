@@ -1,0 +1,113 @@
+{
+  "allAgreementPassed": true,
+  "config": {
+    "cases": 2000,
+    "elements": 2000,
+    "kRange": [
+      1.0,
+      400.0
+    ],
+    "qRange": [
+      1000.0,
+      100000.0
+    ],
+    "repetitions": 5,
+    "seed": 20262027,
+    "tolerance": 1e-08,
+    "warmups": 1
+  },
+  "logicalCpus": 16,
+  "note": "",
+  "serialMedianSeconds": 0.1137783,
+  "serialRunSeconds": [
+    0.1119322,
+    0.112063,
+    0.1137783,
+    0.1189191,
+    0.1169993
+  ],
+  "system": {
+    "buildType": "Release",
+    "compiler": "MinGW-w64 GCC 13-posix",
+    "cpuModel": "Intel(R) Core(TM) i5-14450HX",
+    "logicalCpus": 16,
+    "operatingSystem": "Windows 11 (build 26300)",
+    "optimisationFlags": "-O3 -DNDEBUG",
+    "physicalCores": 10,
+    "totalRamBytes": 25383882752
+  },
+  "timings": [
+    {
+      "agreementPassed": true,
+      "efficiency": 1.0,
+      "maxAbsDiffVsSerial": 0.0,
+      "medianSeconds": 0.1146046,
+      "runSeconds": [
+        0.1135613,
+        0.1146046,
+        0.1180348,
+        0.1239394,
+        0.1036678
+      ],
+      "skipReason": "",
+      "skipped": false,
+      "speedup": 1.0,
+      "speedupVsSerial": 0.9927899927228052,
+      "workers": 1
+    },
+    {
+      "agreementPassed": true,
+      "efficiency": 1.0175967921237974,
+      "maxAbsDiffVsSerial": 0.0,
+      "medianSeconds": 0.0563114,
+      "runSeconds": [
+        0.0583662,
+        0.0551529,
+        0.0570918,
+        0.0556055,
+        0.0563114
+      ],
+      "skipReason": "",
+      "skipped": false,
+      "speedup": 2.0351935842475948,
+      "speedupVsSerial": 2.0205198236946695,
+      "workers": 2
+    },
+    {
+      "agreementPassed": true,
+      "efficiency": 0.9054727547389246,
+      "maxAbsDiffVsSerial": 0.0,
+      "medianSeconds": 0.0421896,
+      "runSeconds": [
+        0.0421896,
+        0.0443898,
+        0.0440458,
+        0.0407722,
+        0.0403945
+      ],
+      "skipReason": "",
+      "skipped": false,
+      "speedup": 2.716418264216774,
+      "speedupVsSerial": 2.696832868763866,
+      "workers": 3
+    },
+    {
+      "agreementPassed": true,
+      "efficiency": 0.9083952644861827,
+      "maxAbsDiffVsSerial": 0.0,
+      "medianSeconds": 0.0315404,
+      "runSeconds": [
+        0.0355105,
+        0.0308732,
+        0.0303544,
+        0.0347401,
+        0.0315404
+      ],
+      "skipReason": "",
+      "skipped": false,
+      "speedup": 3.6335810579447307,
+      "speedupVsSerial": 3.607382912074672,
+      "workers": 4
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+18:36:56.042 Connected to C++ backend (MinGW-w64 GCC 13-posix); launch-to-ready: backend 65 ms, UI 6100 ms
+18:36:56.268 Convergence study N=10,20,40,80: midpoint errors 1.25, 0.3125, 0.078125, 0.019531 °C; order ≈ 2
+18:36:56.292 Backprop: J0=1.18254, gradient check PASS, J after 100 steps = 1.703e-20
+18:36:56.532 STL loaded: heatsink_bracket.stl - 224 triangles in 1.08 ms
+18:37:02.912 STL rejected: line 4: vertex component 'nan' is not finite (NaN/Inf are rejected)
+18:37:04.067 STL rejected: the STL file is empty (0 bytes)
+18:37:04.927 Nodal CSV loaded: synthetic_nodal_temperatures.csv - 2583 nodes, 23…106 °C
+18:37:06.198 Node 2113: 38.866 °C
+18:37:06.763 CSV rejected: line 1: header is missing required column(s): z_m (expected node_id,x_m,y_m,z_m,temperature_C)
+18:37:07.791 Some parameters are invalid - fix the highlighted fields (hover for details).
+18:37:07.908 Thermal parameters reset to the assignment values
+18:37:08.057 Benchmark started (job-1): 400 cases × 2000 elements, workers 1,2
+18:37:09.048 Benchmark finished in 0.705 s; agreement PASS
+18:37:09.572 Benchmark started (job-2): 20000 cases × 2000 elements, workers 1,2
+18:37:10.222 Cancellation requested; workers stop at the next case boundary
+18:37:10.280 Benchmark cancelled safely
+18:37:10.514 Discovery (simulated) found 3 devices: mcu0 [0483:374B (ST-LINK/V2-1)], fpga0 [0403:6010 (FTDI FT2232H)], jtag0 [1366:0101 (SEGGER J-Link)]
+18:37:10.575 mcu0: connect -> connected
+18:37:10.660 mcu0: telemetry #1 (die_temperature=34.358 C, vdda=3.3023 V, adc_ch0=1.7097 V, heartbeat=1)
+18:37:10.721 fpga0: connect -> connected
+18:37:10.812 fpga0: telemetry #1 (xadc_temperature=41.407 C, vccint=0.9977 V, vccaux=1.8017 V, mmcm_locked=true, design_id=0x00C0FFEE)
+18:37:10.894 jtag0: connect -> connected
+18:37:10.973 jtag0: telemetry #1 (vtref=3.2931 V, tck_frequency=4000 kHz, target_idcode=0x4BA00477, scan_chain_devices=1)
+18:37:11.111 fpga0: armed simulated fault "telemetry_timeout"
+18:37:11.628 fpga0: telemetry failed - fpga0: telemetry request timed out after 250 ms (simulated fault) (recoverable: use Recover)
+18:37:11.823 fpga0: recovery succeeded after 1 attempt(s) - link reset (disconnect) | attempt 1: connected
+18:37:11.911 fpga0: telemetry #1 (xadc_temperature=41.134 C, vccint=0.99429 V, vccaux=1.8037 V, mmcm_locked=true, design_id=0x00C0FFEE)

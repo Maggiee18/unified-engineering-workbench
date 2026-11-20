@@ -1,0 +1,9 @@
+# cpu=Intel(R) Xeon(R) Processor @ 2.10GHz; physical_cores=2; logical_cpus=2; ram_bytes=8417533952
+# os=Linux 6.18.44-fc-v185; compiler=GCC 13.3.0; build=Release; flags=-O3 -DNDEBUG
+# cases=2000; elements_per_case=2000; seed=20262027; warmups=1; repetitions=5
+mode,workers,median_s,speedup_T1_over_Tp,efficiency,speedup_vs_serial,max_abs_diff_vs_serial_C,agreement_pass,skipped
+serial,1,0.176346008,,,1,0,true,false
+parallel,1,0.199242857,1,1,0.88508070329467325,0,true,false
+parallel,2,0.101557334,1.9618756140250786,0.9809378070125393,1.7364182482379855,0,true,false
+parallel,3,,,,,,,true
+parallel,4,,,,,,,true

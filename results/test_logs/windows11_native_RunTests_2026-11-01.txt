@@ -1,0 +1,8 @@
+# Packaged bin\workbench_tests.exe run natively on the target laptop (Windows 11 build 26300,
+# Intel Core i5-14450HX) by double-clicking bin\RunTests.cmd from the extracted preview ZIP, 2026-11-01 23:35 IST.
+[doctest] doctest version is "2.4.11"
+[doctest] run with "--help" for options
+===============================================================================
+[doctest] test cases:   62 |   62 passed | 0 failed | 0 skipped
+[doctest] assertions: 1276 | 1276 passed | 0 failed |
+[doctest] Status: SUCCESS!
